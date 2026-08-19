@@ -1,11 +1,13 @@
 import React from 'react';
 import { MezastarTag } from '../types';
 import { TYPE_COLORS } from '../data/tagsData';
+import { formatTypeName } from '../utils/typeMatchupData';
 import { Plus, Minus, Zap, Eye } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 
 interface TagCardProps {
   tag: MezastarTag;
+  typeLanguage?: 'en' | 'vi';
   onIncrement: (id: string) => void;
   onDecrement: (id: string) => void;
   onSelectTag: (tag: MezastarTag) => void;
@@ -13,6 +15,7 @@ interface TagCardProps {
 
 export const TagCard: React.FC<TagCardProps> = ({
   tag,
+  typeLanguage = 'en',
   onIncrement,
   onDecrement,
   onSelectTag,
@@ -22,7 +25,9 @@ export const TagCard: React.FC<TagCardProps> = ({
   const isStar = tag.grade === 5;
   const isDuplicate = tag.quantity >= 2;
 
-  const typeConfig = TYPE_COLORS[tag.type] || {
+  const displayType = formatTypeName(tag.typeEn || tag.type, typeLanguage);
+
+  const typeConfig = TYPE_COLORS[tag.type] || TYPE_COLORS[tag.typeEn || ''] || {
     bg: "from-slate-700 to-slate-800",
     text: "text-slate-300",
     border: "border-slate-600",
@@ -144,7 +149,7 @@ export const TagCard: React.FC<TagCardProps> = ({
             </span>
             <span className="text-slate-600">•</span>
             <span className="text-[9px] font-semibold text-slate-400">
-              {tag.type}
+              {displayType}
             </span>
           </div>
         </div>

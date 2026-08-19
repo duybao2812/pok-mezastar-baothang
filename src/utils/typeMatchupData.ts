@@ -42,18 +42,18 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-stone-400',
     textColor: 'text-stone-200',
     iconSymbol: '⚪',
-    description: 'Hệ cân bằng, không khắc chế hệ nào nhưng chỉ chịu x2 trước Giác đấu và miễn nhiễm với Ma.'
+    description: 'Hệ cân bằng, không khắc chế hệ nào nhưng chỉ chịu x2 trước Fighting và miễn nhiễm với Ghost.'
   },
   {
     id: 'Fighting',
-    nameVi: 'Giác đấu',
+    nameVi: 'Giác Đấu',
     nameEn: 'Fighting',
     color: '#EF4444',
     bgColor: 'bg-red-700',
     borderColor: 'border-red-500',
     textColor: 'text-red-100',
     iconSymbol: '🥊',
-    description: 'Hệ tấn công cận chiến cực mạnh, khắc chế tới 5 hệ: Thường, Đá, Thép, Băng, Bóng tối.'
+    description: 'Khắc chế tới 5 hệ: Normal, Rock, Steel, Ice, Dark.'
   },
   {
     id: 'Poison',
@@ -64,7 +64,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-purple-500',
     textColor: 'text-purple-100',
     iconSymbol: '☠️',
-    description: 'Khắc chế Cỏ và Tiên. Chống chịu tốt trước nhiều hệ tấn công cận chiến.'
+    description: 'Khắc chế Grass và Fairy. Chống chịu tốt trước nhiều hệ tấn công cận chiến.'
   },
   {
     id: 'Ground',
@@ -75,7 +75,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-amber-500',
     textColor: 'text-amber-100',
     iconSymbol: '🏜️',
-    description: 'Khắc chế Lửa, Điện, Độc, Đá, Thép. Hoàn toàn miễn nhiễm trước các đòn đánh hệ Điện.'
+    description: 'Khắc chế Fire, Electric, Poison, Rock, Steel. Hoàn toàn miễn nhiễm Electric.'
   },
   {
     id: 'Flying',
@@ -86,18 +86,18 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-sky-400',
     textColor: 'text-sky-100',
     iconSymbol: '🦅',
-    description: 'Khắc chế Cỏ, Giác đấu, Côn trùng. Miễn nhiễm sát thương hệ Đất.'
+    description: 'Khắc chế Grass, Fighting, Bug. Miễn nhiễm Ground.'
   },
   {
     id: 'Bug',
-    nameVi: 'Côn trùng',
+    nameVi: 'Bọ',
     nameEn: 'Bug',
     color: '#84CC16',
     bgColor: 'bg-lime-600',
     borderColor: 'border-lime-400',
     textColor: 'text-lime-100',
     iconSymbol: '🐛',
-    description: 'Khắc chế Cỏ, Siêu linh, Bóng tối.'
+    description: 'Khắc chế Grass, Psychic, Dark.'
   },
   {
     id: 'Rock',
@@ -108,7 +108,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-yellow-600',
     textColor: 'text-yellow-100',
     iconSymbol: '🪨',
-    description: 'Khắc chế Lửa, Băng, Bay, Côn trùng.'
+    description: 'Khắc chế Fire, Ice, Flying, Bug.'
   },
   {
     id: 'Ghost',
@@ -119,7 +119,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-indigo-500',
     textColor: 'text-indigo-100',
     iconSymbol: '👻',
-    description: 'Khắc chế Siêu linh và chính hệ Ma. Miễn nhiễm hoàn toàn trước Thường và Giác đấu.'
+    description: 'Khắc chế Psychic và Ghost. Miễn nhiễm trước Normal và Fighting.'
   },
   {
     id: 'Steel',
@@ -130,7 +130,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-slate-400',
     textColor: 'text-slate-100',
     iconSymbol: '⚙️',
-    description: 'Vua phòng thủ trong Pokémon! Kháng tới 10 hệ khác nhau và miễn nhiễm với Độc. Khắc Băng, Đá, Tiên.'
+    description: 'Vua phòng thủ Pokémon! Kháng tới 10 hệ khác nhau và miễn nhiễm Poison. Khắc Ice, Rock, Fairy.'
   },
   {
     id: 'Fire',
@@ -141,7 +141,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-orange-400',
     textColor: 'text-orange-100',
     iconSymbol: '🔥',
-    description: 'Khắc chế Cỏ, Băng, Côn trùng, Thép.'
+    description: 'Khắc chế Grass, Ice, Bug, Steel.'
   },
   {
     id: 'Water',
@@ -152,7 +152,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-blue-400',
     textColor: 'text-blue-100',
     iconSymbol: '💧',
-    description: 'Hệ đa dụng phổ biến nhất, khắc chế Lửa, Đất, Đá.'
+    description: 'Hệ đa dụng phổ biến nhất, khắc chế Fire, Ground, Rock.'
   },
   {
     id: 'Electric',
@@ -163,7 +163,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-yellow-300',
     textColor: 'text-yellow-950',
     iconSymbol: '⚡',
-    description: 'Tấn công siêu hiệu quả lên Nước và Bay. Chỉ có duy nhất 1 điểm yếu phòng thủ là Đất.'
+    description: 'Tấn công siêu hiệu quả lên Water và Flying. Chỉ có duy nhất 1 điểm yếu phòng thủ là Ground.'
   },
   {
     id: 'Grass',
@@ -174,7 +174,7 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-green-400',
     textColor: 'text-green-100',
     iconSymbol: '🌿',
-    description: 'Khắc chế Nước, Đất, Đá.'
+    description: 'Khắc chế Water, Ground, Rock.'
   },
   {
     id: 'Ice',
@@ -185,18 +185,18 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-cyan-300',
     textColor: 'text-cyan-950',
     iconSymbol: '❄️',
-    description: 'Hệ sát thương cao, khắc chế Cỏ, Đất, Bay và Rồng.'
+    description: 'Sát thương cao, khắc chế Grass, Ground, Flying và Dragon.'
   },
   {
     id: 'Psychic',
-    nameVi: 'Siêu linh',
+    nameVi: 'Siêu Linh',
     nameEn: 'Psychic',
     color: '#EC4899',
     bgColor: 'bg-pink-600',
     borderColor: 'border-pink-400',
     textColor: 'text-pink-100',
     iconSymbol: '🔮',
-    description: 'Khắc chế Giác đấu và Độc. Đòn đánh không hiệu quả lên Bóng tối.'
+    description: 'Khắc chế Fighting và Poison. Đòn đánh không hiệu quả lên Dark.'
   },
   {
     id: 'Dragon',
@@ -207,18 +207,18 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-violet-400',
     textColor: 'text-violet-100',
     iconSymbol: '🐉',
-    description: 'Hệ huyền thoại mạnh mẽ, khắc chế chính hệ Rồng. Không gây sát thương lên Tiên.'
+    description: 'Khắc chế Dragon. Đòn đánh không gây sát thương lên Fairy.'
   },
   {
     id: 'Dark',
-    nameVi: 'Bóng tối',
+    nameVi: 'Bóng Tối',
     nameEn: 'Dark',
     color: '#475569',
     bgColor: 'bg-zinc-800',
     borderColor: 'border-zinc-500',
     textColor: 'text-zinc-100',
     iconSymbol: '🌑',
-    description: 'Khắc chế Siêu linh và Ma. Hoàn toàn miễn nhiễm trước chiêu thức Siêu linh.'
+    description: 'Khắc chế Psychic và Ghost. Hoàn toàn miễn nhiễm trước chiêu thức Psychic.'
   },
   {
     id: 'Fairy',
@@ -229,9 +229,66 @@ export const POKEMON_TYPES: PokemonTypeInfo[] = [
     borderColor: 'border-rose-300',
     textColor: 'text-rose-950',
     iconSymbol: '✨',
-    description: 'Khắc chế Giác đấu, Rồng, Bóng tối. Miễn nhiễm trước các đòn đánh hệ Rồng.'
+    description: 'Khắc chế Fighting, Dragon, Dark. Miễn nhiễm trước các đòn đánh Dragon.'
   }
 ];
+
+export const TYPE_TRANSLATIONS: Record<string, { en: string; vi: string }> = {
+  'Normal': { en: 'Normal', vi: 'Thường' },
+  'Fighting': { en: 'Fighting', vi: 'Giác Đấu' },
+  'Poison': { en: 'Poison', vi: 'Độc' },
+  'Ground': { en: 'Ground', vi: 'Đất' },
+  'Flying': { en: 'Flying', vi: 'Bay' },
+  'Bug': { en: 'Bug', vi: 'Bọ' },
+  'Rock': { en: 'Rock', vi: 'Đá' },
+  'Ghost': { en: 'Ghost', vi: 'Ma' },
+  'Steel': { en: 'Steel', vi: 'Thép' },
+  'Fire': { en: 'Fire', vi: 'Lửa' },
+  'Water': { en: 'Water', vi: 'Nước' },
+  'Electric': { en: 'Electric', vi: 'Điện' },
+  'Grass': { en: 'Grass', vi: 'Cỏ' },
+  'Ice': { en: 'Ice', vi: 'Băng' },
+  'Psychic': { en: 'Psychic', vi: 'Siêu Linh' },
+  'Dragon': { en: 'Dragon', vi: 'Rồng' },
+  'Dark': { en: 'Dark', vi: 'Bóng Tối' },
+  'Fairy': { en: 'Fairy', vi: 'Tiên' },
+
+  // Vietnamese aliases
+  'Thường': { en: 'Normal', vi: 'Thường' },
+  'Giác Đấu': { en: 'Fighting', vi: 'Giác Đấu' },
+  'Độc': { en: 'Poison', vi: 'Độc' },
+  'Đất': { en: 'Ground', vi: 'Đất' },
+  'Bay': { en: 'Flying', vi: 'Bay' },
+  'Bọ': { en: 'Bug', vi: 'Bọ' },
+  'Đá': { en: 'Rock', vi: 'Đá' },
+  'Ma': { en: 'Ghost', vi: 'Ma' },
+  'Thép': { en: 'Steel', vi: 'Thép' },
+  'Lửa': { en: 'Fire', vi: 'Lửa' },
+  'Nước': { en: 'Water', vi: 'Nước' },
+  'Điện': { en: 'Electric', vi: 'Điện' },
+  'Cỏ': { en: 'Grass', vi: 'Cỏ' },
+  'Băng': { en: 'Ice', vi: 'Băng' },
+  'Siêu Linh': { en: 'Psychic', vi: 'Siêu Linh' },
+  'Rồng': { en: 'Dragon', vi: 'Rồng' },
+  'Bóng Tối': { en: 'Dark', vi: 'Bóng Tối' },
+  'Tiên': { en: 'Fairy', vi: 'Tiên' }
+};
+
+export function formatTypeName(type: string | undefined | null, lang: 'en' | 'vi' | string = 'en'): string {
+  if (!type) return '';
+  const currentLang = lang === 'vi' ? 'vi' : 'en';
+  const clean = type.trim();
+  const entry = TYPE_TRANSLATIONS[clean];
+  if (entry) {
+    return entry[currentLang];
+  }
+  const norm = normalizePokemonType(clean);
+  if (norm) {
+    const item = POKEMON_TYPES.find(t => t.id === norm);
+    if (item) return currentLang === 'vi' ? item.nameVi : item.nameEn;
+  }
+  return clean;
+}
 
 // 18x18 Matchup Matrix (Attacker rows x Defender cols)
 // Returns: 'super' (2x, 🔴), 'not_very' (0.5x, 🔺), 'no_effect' (0x, ❌), or 'normal' (1x, ⚪)

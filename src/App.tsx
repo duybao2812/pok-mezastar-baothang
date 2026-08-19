@@ -19,13 +19,40 @@ const STORAGE_KEY = 'POKEMON_MEZASTAR_VN_COLLECTION_V2';
 const API_KEY_STORAGE = 'MEZASTAR_GEMINI_KEY';
 
 export default function App() {
-  // Saved Gemini API Key state (stored permanently in localStorage)
+  // Saved Gemini API Key state (stored permanently in localStorage or from Vercel ENV or from URL sync)
   const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
     try {
-      return localStorage.getItem(API_KEY_STORAGE) || '';
-    } catch {
-      return '';
+      // 1. Check URL parameters for instant sync (e.g. https://domain.vercel.app/?key=AIza...)
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlKey = urlParams.get('key') || urlParams.get('apiKey') || urlParams.get('geminiKey');
+        if (urlKey && urlKey.trim()) {
+          const cleanKey = urlKey.trim();
+          localStorage.setItem(API_KEY_STORAGE, cleanKey);
+          
+          // Clean the URL without reloading
+          const cleanUrl = window.location.origin + window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+          
+          return cleanKey;
+        }
+      }
+
+      // 2. Check local storage
+      const saved = localStorage.getItem(API_KEY_STORAGE);
+      if (saved && saved.trim()) {
+        return saved.trim();
+      }
+
+      // 3. Check Vercel build-time Environment Variable
+      const envKey = ((import.meta as any).env?.VITE_GEMINI_API_KEY as string) || '';
+      if (envKey && envKey.trim()) {
+        return envKey.trim();
+      }
+    } catch (e) {
+      console.warn("Could not load API key:", e);
     }
+    return '';
   });
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
 
@@ -60,6 +87,27 @@ export default function App() {
   const [sortBy, setSortBy] = useState<SortOption>('id');
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
+  // Language preference for Pokémon types ('en' = English default, 'vi' = Vietnamese)
+  const [typeLanguage, setTypeLanguage] = useState<'en' | 'vi'>(() => {
+    try {
+      const saved = localStorage.getItem('MEZASTAR_TYPE_LANG');
+      if (saved === 'vi' || saved === 'en') return saved;
+    } catch (e) {
+      // fallback
+    }
+    return 'en'; // default English
+  });
+
+  const handleToggleTypeLanguage = () => {
+    const nextLang = typeLanguage === 'en' ? 'vi' : 'en';
+    setTypeLanguage(nextLang);
+    try {
+      localStorage.setItem('MEZASTAR_TYPE_LANG', nextLang);
+    } catch (e) {
+      console.error("Failed to save language preference:", e);
+    }
+  };
+
   // Modals state
   const [selectedTag, setSelectedTag] = useState<MezastarTag | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -68,11 +116,15 @@ export default function App() {
   const [isBackupOpen, setIsBackupOpen] = useState(false);
   const [isTypeChartOpen, setIsTypeChartOpen] = useState(false);
   const [typeChartInitialType, setTypeChartInitialType] = useState<PokemonTypeId | null>('Water');
+  const [typeChartInitialTagId, setTypeChartInitialTagId] = useState<string | null>(null);
 
-  const handleOpenTypeChart = (initialType?: PokemonTypeId) => {
+  const handleOpenTypeChart = (initialType?: PokemonTypeId, initialTagId?: string) => {
     sounds.playClick();
     if (initialType) {
       setTypeChartInitialType(initialType);
+    }
+    if (initialTagId) {
+      setTypeChartInitialTagId(initialTagId);
     }
     setIsTypeChartOpen(true);
   };
@@ -228,8 +280,14 @@ export default function App() {
         if (gradeFilter === 'duplicates' && tag.quantity < 2) return false;
         if (gradeFilter === 'unowned' && tag.quantity > 0) return false;
 
-        if (selectedType && tag.type !== selectedType && tag.secondaryType !== selectedType) {
-          return false;
+        if (selectedType) {
+          const matchPrimary = tag.type.toLowerCase() === selectedType.toLowerCase() || 
+            (tag.typeEn && tag.typeEn.toLowerCase() === selectedType.toLowerCase());
+          const matchSecondary = tag.secondaryType?.toLowerCase() === selectedType.toLowerCase() || 
+            (tag.secondaryTypeEn && tag.secondaryTypeEn.toLowerCase() === selectedType.toLowerCase());
+          if (!matchPrimary && !matchSecondary) {
+            return false;
+          }
         }
 
         if (searchQuery.trim()) {
@@ -239,7 +297,10 @@ export default function App() {
           const matchVnName = tag.vietnameseName?.toLowerCase().includes(q);
           const matchMove = tag.moveName.toLowerCase().includes(q);
           const matchType = tag.type.toLowerCase().includes(q);
-          if (!matchId && !matchName && !matchVnName && !matchMove && !matchType) {
+          const matchTypeEn = tag.typeEn?.toLowerCase().includes(q);
+          const matchSecondaryType = tag.secondaryType?.toLowerCase().includes(q);
+          const matchSecondaryTypeEn = tag.secondaryTypeEn?.toLowerCase().includes(q);
+          if (!matchId && !matchName && !matchVnName && !matchMove && !matchType && !matchTypeEn && !matchSecondaryType && !matchSecondaryTypeEn) {
             return false;
           }
         }
@@ -295,6 +356,8 @@ export default function App() {
         hasApiKey={!!geminiApiKey}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         onOpenTypeChart={() => handleOpenTypeChart('Water')}
+        typeLanguage={typeLanguage}
+        onToggleTypeLanguage={handleToggleTypeLanguage}
       />
 
       {/* Main Filter Bar */}
@@ -307,6 +370,7 @@ export default function App() {
         onSearchChange={setSearchQuery}
         sortBy={sortBy}
         onSortChange={setSortBy}
+        typeLanguage={typeLanguage}
         counts={filterCounts}
       />
 
@@ -339,6 +403,7 @@ export default function App() {
               <TagCard
                 key={tag.id}
                 tag={tag}
+                typeLanguage={typeLanguage}
                 onIncrement={handleIncrement}
                 onDecrement={handleDecrement}
                 onSelectTag={(t) => setSelectedTag(t)}
@@ -365,6 +430,7 @@ export default function App() {
       {selectedTag && (
         <TagDetailModal
           tag={selectedTag}
+          typeLanguage={typeLanguage}
           onClose={() => setSelectedTag(null)}
           onIncrement={handleIncrement}
           onDecrement={handleDecrement}
@@ -377,6 +443,10 @@ export default function App() {
         isOpen={isTypeChartOpen}
         onClose={() => setIsTypeChartOpen(false)}
         initialType={typeChartInitialType}
+        initialTagId={typeChartInitialTagId}
+        tags={tags}
+        typeLanguage={typeLanguage}
+        onToggleTypeLanguage={handleToggleTypeLanguage}
       />
 
       <CameraScannerModal

@@ -1846,6 +1846,134 @@ export const INITIAL_MEZASTAR_TAGS: MezastarTag[] = [
 ];
 
 export const TYPE_COLORS: Record<string, { bg: string; text: string; border: string; glow: string; badge: string }> = {
+  // English type names
+  "Water": {
+    bg: "from-blue-600 to-cyan-700",
+    text: "text-cyan-300",
+    border: "border-cyan-500",
+    glow: "rgba(6, 182, 212, 0.6)",
+    badge: "bg-cyan-950/80 text-cyan-300 border-cyan-500/50"
+  },
+  "Ground": {
+    bg: "from-amber-700 to-yellow-800",
+    text: "text-amber-300",
+    border: "border-amber-500",
+    glow: "rgba(245, 158, 11, 0.6)",
+    badge: "bg-amber-950/80 text-amber-300 border-amber-500/50"
+  },
+  "Fighting": {
+    bg: "from-orange-700 to-red-800",
+    text: "text-orange-300",
+    border: "border-orange-500",
+    glow: "rgba(249, 115, 22, 0.6)",
+    badge: "bg-orange-950/80 text-orange-300 border-orange-500/50"
+  },
+  "Electric": {
+    bg: "from-yellow-500 to-amber-600",
+    text: "text-yellow-300",
+    border: "border-yellow-400",
+    glow: "rgba(234, 179, 8, 0.6)",
+    badge: "bg-yellow-950/80 text-yellow-300 border-yellow-400/50"
+  },
+  "Normal": {
+    bg: "from-slate-600 to-slate-700",
+    text: "text-slate-200",
+    border: "border-slate-400",
+    glow: "rgba(148, 163, 184, 0.5)",
+    badge: "bg-slate-800/80 text-slate-200 border-slate-500/50"
+  },
+  "Dragon": {
+    bg: "from-indigo-600 to-purple-800",
+    text: "text-indigo-300",
+    border: "border-indigo-500",
+    glow: "rgba(99, 102, 241, 0.6)",
+    badge: "bg-indigo-950/80 text-indigo-300 border-indigo-500/50"
+  },
+  "Psychic": {
+    bg: "from-pink-600 to-rose-700",
+    text: "text-pink-300",
+    border: "border-pink-500",
+    glow: "rgba(236, 72, 153, 0.6)",
+    badge: "bg-pink-950/80 text-pink-300 border-pink-500/50"
+  },
+  "Fairy": {
+    bg: "from-fuchsia-500 to-pink-600",
+    text: "text-fuchsia-300",
+    border: "border-fuchsia-400",
+    glow: "rgba(217, 70, 239, 0.6)",
+    badge: "bg-fuchsia-950/80 text-fuchsia-300 border-fuchsia-400/50"
+  },
+  "Fire": {
+    bg: "from-red-600 to-orange-700",
+    text: "text-red-300",
+    border: "border-red-500",
+    glow: "rgba(239, 68, 68, 0.6)",
+    badge: "bg-red-950/80 text-red-300 border-red-500/50"
+  },
+  "Ice": {
+    bg: "from-sky-500 to-cyan-600",
+    text: "text-sky-300",
+    border: "border-sky-400",
+    glow: "rgba(56, 189, 248, 0.6)",
+    badge: "bg-sky-950/80 text-sky-300 border-sky-400/50"
+  },
+  "Grass": {
+    bg: "from-emerald-600 to-green-700",
+    text: "text-emerald-300",
+    border: "border-emerald-500",
+    glow: "rgba(16, 185, 129, 0.6)",
+    badge: "bg-emerald-950/80 text-emerald-300 border-emerald-500/50"
+  },
+  "Steel": {
+    bg: "from-zinc-600 to-slate-700",
+    text: "text-zinc-300",
+    border: "border-zinc-400",
+    glow: "rgba(161, 161, 170, 0.6)",
+    badge: "bg-zinc-900/80 text-zinc-300 border-zinc-500/50"
+  },
+  "Rock": {
+    bg: "from-stone-600 to-amber-900",
+    text: "text-stone-300",
+    border: "border-stone-500",
+    glow: "rgba(120, 113, 108, 0.6)",
+    badge: "bg-stone-950/80 text-stone-300 border-stone-500/50"
+  },
+  "Dark": {
+    bg: "from-violet-900 to-slate-950",
+    text: "text-purple-300",
+    border: "border-purple-600",
+    glow: "rgba(126, 34, 206, 0.6)",
+    badge: "bg-purple-950/80 text-purple-300 border-purple-600/50"
+  },
+  "Ghost": {
+    bg: "from-purple-800 to-indigo-950",
+    text: "text-purple-300",
+    border: "border-purple-500",
+    glow: "rgba(168, 85, 247, 0.6)",
+    badge: "bg-purple-950/80 text-purple-300 border-purple-500/50"
+  },
+  "Flying": {
+    bg: "from-sky-600 to-blue-700",
+    text: "text-sky-300",
+    border: "border-sky-500",
+    glow: "rgba(14, 165, 233, 0.6)",
+    badge: "bg-sky-950/80 text-sky-300 border-sky-500/50"
+  },
+  "Poison": {
+    bg: "from-fuchsia-700 to-purple-900",
+    text: "text-fuchsia-300",
+    border: "border-fuchsia-500",
+    glow: "rgba(192, 38, 211, 0.6)",
+    badge: "bg-fuchsia-950/80 text-fuchsia-300 border-fuchsia-500/50"
+  },
+  "Bug": {
+    bg: "from-lime-600 to-green-700",
+    text: "text-lime-300",
+    border: "border-lime-500",
+    glow: "rgba(132, 204, 22, 0.6)",
+    badge: "bg-lime-950/80 text-lime-300 border-lime-500/50"
+  },
+  // Vietnamese type aliases for backward compatibility
   "Nước": {
     bg: "from-blue-600 to-cyan-700",
     text: "text-cyan-300",

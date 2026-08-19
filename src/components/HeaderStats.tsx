@@ -12,7 +12,8 @@ import {
   Zap,
   Star,
   Key,
-  Swords
+  Swords,
+  Globe
 } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 
@@ -27,6 +28,8 @@ interface HeaderStatsProps {
   hasApiKey: boolean;
   onOpenApiKeyModal: () => void;
   onOpenTypeChart: () => void;
+  typeLanguage?: 'en' | 'vi';
+  onToggleTypeLanguage?: () => void;
 }
 
 export const HeaderStats: React.FC<HeaderStatsProps> = ({
@@ -40,6 +43,8 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({
   hasApiKey,
   onOpenApiKeyModal,
   onOpenTypeChart,
+  typeLanguage = 'en',
+  onToggleTypeLanguage,
 }) => {
   return (
     <header className="w-full bg-slate-900 border-b border-slate-800 shadow-xl sticky top-0 z-40">
@@ -175,6 +180,26 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({
               <Swords className="w-3.5 h-3.5 text-amber-400" />
               <span>Khắc Hệ</span>
             </button>
+
+            {/* Type Name Language Toggle Button (EN / VI) */}
+            {onToggleTypeLanguage && (
+              <button
+                id="btn-toggle-type-language"
+                onClick={() => {
+                  sounds.playClick();
+                  onToggleTypeLanguage();
+                }}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider rounded-lg border border-slate-700 transition-all active:scale-95 whitespace-nowrap cursor-pointer"
+                title={`Đang hiển thị tên hệ dạng ${typeLanguage === 'en' ? 'Tiếng Anh (English)' : 'Tiếng Việt'}. Nhấp để chuyển đổi EN / VI.`}
+              >
+                <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-[11px] font-mono">
+                  Hệ: <span className={typeLanguage === 'en' ? 'text-cyan-300 font-black' : 'text-slate-500'}>EN</span>
+                  <span className="text-slate-600 mx-0.5">/</span>
+                  <span className={typeLanguage === 'vi' ? 'text-amber-300 font-black' : 'text-slate-500'}>VI</span>
+                </span>
+              </button>
+            )}
 
             {/* API Key Settings Button */}
             <button

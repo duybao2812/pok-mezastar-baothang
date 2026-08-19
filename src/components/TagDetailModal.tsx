@@ -23,20 +23,23 @@ import {
   normalizePokemonType, 
   getAttackingProfile, 
   getDefendingProfile,
-  PokemonTypeId 
+  PokemonTypeId,
+  formatTypeName
 } from '../utils/typeMatchupData';
 
 interface TagDetailModalProps {
   tag: MezastarTag;
+  typeLanguage?: 'en' | 'vi';
   onClose: () => void;
   onIncrement: (id: string) => void;
   onDecrement: (id: string) => void;
   onUpdateNotes: (id: string, notes: string) => void;
-  onOpenTypeChart?: (type?: PokemonTypeId) => void;
+  onOpenTypeChart?: (type?: PokemonTypeId, tagId?: string) => void;
 }
 
 export const TagDetailModal: React.FC<TagDetailModalProps> = ({
   tag,
+  typeLanguage = 'en',
   onClose,
   onIncrement,
   onDecrement,
@@ -195,11 +198,13 @@ export const TagDetailModal: React.FC<TagDetailModalProps> = ({
                 <span className="text-xs text-slate-400 font-medium">Hệ Pokémon:</span>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`px-3 py-1 rounded-lg text-xs font-bold border ${typeConfig.badge}`}>
-                    {tag.type} ({tag.typeEn})
+                    {formatTypeName(tag.typeEn || tag.type, typeLanguage)}
+                    {typeLanguage === 'vi' && tag.typeEn ? ` (${tag.typeEn})` : ''}
                   </span>
                   {tag.secondaryType && (
                     <span className="px-3 py-1 rounded-lg text-xs font-bold border bg-slate-800 text-slate-300 border-slate-700">
-                      {tag.secondaryType} ({tag.secondaryTypeEn})
+                      {formatTypeName(tag.secondaryTypeEn || tag.secondaryType, typeLanguage)}
+                      {typeLanguage === 'vi' && tag.secondaryTypeEn ? ` (${tag.secondaryTypeEn})` : ''}
                     </span>
                   )}
                 </div>
@@ -212,7 +217,9 @@ export const TagDetailModal: React.FC<TagDetailModalProps> = ({
                   <Swords className="w-4 h-4 text-red-400" />
                   <span>{tag.moveName}</span>
                 </p>
-                <span className="text-[11px] text-slate-400">Hệ chiêu: <strong className="text-slate-200">{tag.moveType}</strong></span>
+                <span className="text-[11px] text-slate-400">
+                  Hệ chiêu: <strong className="text-slate-200">{formatTypeName(tag.moveType, typeLanguage)}</strong>
+                </span>
               </div>
 
               {/* Battle Stat Bars */}
@@ -288,7 +295,7 @@ export const TagDetailModal: React.FC<TagDetailModalProps> = ({
                   <button
                     onClick={() => {
                       sounds.playClick();
-                      onOpenTypeChart(primaryTypeId || 'Water');
+                      onOpenTypeChart(primaryTypeId || 'Water', tag.id);
                     }}
                     className="text-[11px] font-bold text-blue-400 hover:text-blue-300 uppercase tracking-wider flex items-center gap-1 hover:underline cursor-pointer"
                   >

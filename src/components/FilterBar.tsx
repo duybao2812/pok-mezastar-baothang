@@ -2,6 +2,7 @@ import React from 'react';
 import { GradeFilterOption, SortOption } from '../types';
 import { Search, X, SlidersHorizontal, Sparkles, Star, CheckCircle, Copy, HelpCircle } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
+import { formatTypeName } from '../utils/typeMatchupData';
 
 interface FilterBarProps {
   gradeFilter: GradeFilterOption;
@@ -12,6 +13,7 @@ interface FilterBarProps {
   onSearchChange: (query: string) => void;
   sortBy: SortOption;
   onSortChange: (sort: SortOption) => void;
+  typeLanguage?: 'en' | 'vi';
   counts: {
     all: number;
     superstar: number;
@@ -26,23 +28,24 @@ interface FilterBarProps {
 
 const ELEMENT_TYPES = [
   "Tất cả",
-  "Nước",
-  "Lửa",
-  "Cỏ",
-  "Điện",
-  "Rồng",
-  "Tiên",
-  "Siêu Linh",
-  "Giác Đấu",
-  "Băng",
-  "Thép",
-  "Đá",
-  "Đất",
-  "Bóng Tối",
-  "Ma",
-  "Bay",
-  "Độc",
-  "Thường"
+  "Normal",
+  "Fire",
+  "Water",
+  "Grass",
+  "Electric",
+  "Ice",
+  "Fighting",
+  "Poison",
+  "Ground",
+  "Flying",
+  "Psychic",
+  "Bug",
+  "Rock",
+  "Ghost",
+  "Dragon",
+  "Steel",
+  "Dark",
+  "Fairy"
 ];
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -54,6 +57,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSearchChange,
   sortBy,
   onSortChange,
+  typeLanguage = 'en',
   counts,
 }) => {
   return (
@@ -273,6 +277,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider whitespace-nowrap pr-1">Hệ:</span>
         {ELEMENT_TYPES.map((type) => {
           const isSelected = (type === "Tất cả" && selectedType === "") || selectedType === type;
+          const displayLabel = type === "Tất cả" 
+            ? (typeLanguage === 'en' ? "All Types" : "Tất cả") 
+            : formatTypeName(type, typeLanguage);
+
           return (
             <button
               key={type}
@@ -286,7 +294,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'
               }`}
             >
-              {type}
+              {displayLabel}
             </button>
           );
         })}

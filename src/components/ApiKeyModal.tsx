@@ -10,7 +10,12 @@ import {
   ShieldCheck, 
   Sparkles,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Smartphone,
+  Copy,
+  Globe,
+  Share2,
+  HelpCircle
 } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 
@@ -30,8 +35,10 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSavedSuccess, setIsSavedSuccess] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<'settings' | 'syncGuide'>('settings');
 
   useEffect(() => {
     if (isOpen) {
@@ -39,6 +46,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
       setIsSavedSuccess(false);
       setTestStatus('idle');
       setTestMessage('');
+      setCopiedLink(false);
     }
   }, [isOpen, savedApiKey]);
 
@@ -107,22 +115,41 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     }
   };
 
+  // Generate mobile auto-sync URL
+  const getSyncUrl = () => {
+    const currentKey = apiKeyInput.trim() || savedApiKey.trim();
+    if (typeof window === 'undefined' || !currentKey) return '';
+    const baseUrl = window.location.origin + window.location.pathname;
+    return `${baseUrl}?key=${encodeURIComponent(currentKey)}`;
+  };
+
+  const handleCopySyncLink = () => {
+    const url = getSyncUrl();
+    if (!url) return;
+    navigator.clipboard.writeText(url);
+    sounds.playStarChime();
+    setCopiedLink(true);
+    setTimeout(() => {
+      setCopiedLink(false);
+    }, 3000);
+  };
+
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn"
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-scaleIn"
+        className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-scaleIn flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Gradient Banner */}
         <div className="h-1.5 w-full bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500" />
 
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
               <Key className="w-5 h-5" />
             </div>
             <div>
@@ -131,7 +158,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 <Sparkles className="w-4 h-4 text-amber-400" />
               </h2>
               <p className="text-xs text-slate-400">
-                Lưu trữ vĩnh viễn trên trình duyệt cho tính năng Quét thẻ AI
+                Tự động đồng bộ và lưu vĩnh viễn trên mọi thiết bị
               </p>
             </div>
           </div>
@@ -148,88 +175,213 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-5 space-y-4">
-          {/* Storage notification */}
-          <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-start gap-3 text-xs text-slate-300">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-            <span>
-              API Key được lưu trữ trực tiếp trong <strong>Local Storage</strong> của trình duyệt và sẽ được ghi nhớ vĩnh viễn cho đến khi bạn thay đổi hoặc xóa bỏ.
-            </span>
-          </div>
+        {/* Sub Tabs */}
+        <div className="px-5 pt-3 pb-2 bg-slate-950/70 border-b border-slate-800/80 flex items-center gap-2">
+          <button
+            onClick={() => {
+              sounds.playClick();
+              setActiveTab('settings');
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              activeTab === 'settings'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            🔑 Nhập & Quản Lý Key
+          </button>
 
-          {/* Input field */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-              Google Gemini API Key
-            </label>
-            <div className="relative">
-              <input
-                id="input-gemini-api-key"
-                type={showPassword ? 'text' : 'password'}
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="AIzaSy..."
-                className="w-full px-3.5 py-2.5 pr-20 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="p-1.5 text-slate-400 hover:text-slate-200 transition-colors rounded-lg"
-                  title={showPassword ? "Ẩn mã" : "Hiện mã"}
+          <button
+            onClick={() => {
+              sounds.playClick();
+              setActiveTab('syncGuide');
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'syncGuide'
+                ? 'bg-blue-600 text-white font-black shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>📱 Đồng Bộ Mọi Thiết Bị</span>
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
+          {activeTab === 'settings' ? (
+            <>
+              {/* Storage notification */}
+              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-start gap-3 text-xs text-slate-300">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span>
+                  API Key được lưu trữ trực tiếp trong <strong>Local Storage</strong> của trình duyệt và sẽ được ghi nhớ vĩnh viễn cho đến khi bạn thay đổi hoặc xóa bỏ.
+                </span>
+              </div>
+
+              {/* Input field */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Google Gemini API Key
+                </label>
+                <div className="relative">
+                  <input
+                    id="input-gemini-api-key"
+                    type={showPassword ? 'text' : 'password'}
+                    value={apiKeyInput}
+                    onChange={(e) => setApiKeyInput(e.target.value)}
+                    placeholder="AIzaSy..."
+                    className="w-full px-3.5 py-2.5 pr-20 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="p-1.5 text-slate-400 hover:text-slate-200 transition-colors rounded-lg"
+                      title={showPassword ? "Ẩn mã" : "Hiện mã"}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-amber-400" />}
+                    </button>
+                    {apiKeyInput && (
+                      <button
+                        type="button"
+                        onClick={handleClear}
+                        className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded-lg"
+                        title="Xóa mã"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Test Status feedback */}
+              {testStatus !== 'idle' && (
+                <div 
+                  className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+                    testStatus === 'success' 
+                      ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' 
+                      : testStatus === 'error'
+                      ? 'bg-red-950/40 border-red-500/40 text-red-300'
+                      : 'bg-blue-950/40 border-blue-500/40 text-blue-300'
+                  }`}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-amber-400" />}
-                </button>
-                {apiKeyInput && (
+                  {testStatus === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : testStatus === 'error' ? (
+                    <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 text-blue-400 animate-spin shrink-0" />
+                  )}
+                  <span>{testMessage}</span>
+                </div>
+              )}
+
+              {/* Quick Sync Link Generator Button */}
+              {apiKeyInput.trim() && (
+                <div className="p-3.5 rounded-xl bg-blue-950/30 border border-blue-800/40 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-blue-300 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <Smartphone className="w-4 h-4 text-blue-400" />
+                      <span>Link Đồng Bộ Sang Điện Thoại:</span>
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    Gửi link này qua Zalo/Messenger sang điện thoại. Điện thoại mở lên sẽ <strong>tự động lưu vĩnh viễn</strong> và bảo mật ngay!
+                  </p>
                   <button
                     type="button"
-                    onClick={handleClear}
-                    className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded-lg"
-                    title="Xóa mã"
+                    onClick={handleCopySyncLink}
+                    className="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    {copiedLink ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-white" />
+                        <span>Đã Sao Chép Link Kích Hoạt Điện Thoại!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Sao Chép Link Mở Trên Điện Thoại</span>
+                      </>
+                    )}
                   </button>
-                )}
+                </div>
+              )}
+
+              {/* Helper link */}
+              <div className="flex items-center justify-between text-xs pt-1">
+                <span className="text-slate-400">Chưa có API Key?</span>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-semibold"
+                >
+                  <span>Lấy key miễn phí tại Google AI Studio</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </>
+          ) : (
+            /* Sync Guide Tab */
+            <div className="space-y-4 text-xs text-slate-300 animate-fadeIn">
+              {/* Option 1: Vercel ENV (Permanent for all devices) */}
+              <div className="p-4 rounded-xl bg-slate-950 border border-emerald-500/40 space-y-2.5">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm uppercase">
+                  <Globe className="w-4 h-4" />
+                  <span>Cách 1: Cài đặt vào Vercel (Tự động 100% mọi thiết bị)</span>
+                </div>
+                <p className="text-slate-300 leading-relaxed text-[11px]">
+                  Nếu bạn muốn <strong>bất kỳ điện thoại, iPad hay máy tính nào</strong> truy cập vào trang web của bạn đều có sẵn API Key vĩnh viễn mà không cần nhập lại:
+                </p>
+                <ol className="list-decimal list-inside space-y-1.5 text-[11px] text-slate-400 pl-1 font-mono">
+                  <li>Vào Vercel Dashboard ➔ Mở project của bạn.</li>
+                  <li>Vào mục <strong className="text-emerald-300">Settings</strong> ➔ <strong className="text-emerald-300">Environment Variables</strong>.</li>
+                  <li>Thêm biến mới:
+                    <div className="bg-slate-900 p-2 rounded mt-1 text-slate-200 border border-slate-800">
+                      <span className="text-amber-400 font-bold">Key:</span> <code className="text-white">VITE_GEMINI_API_KEY</code><br/>
+                      <span className="text-amber-400 font-bold">Value:</span> <code className="text-white">{apiKeyInput.trim() || 'Dán_API_Key_của_bạn'}</code>
+                    </div>
+                  </li>
+                  <li>Bấm <strong className="text-emerald-300">Save</strong> và vào tab <strong className="text-emerald-300">Deployments ➔ Redeploy</strong>.</li>
+                </ol>
+                <div className="text-[10px] text-emerald-400 font-semibold pt-1">
+                  ✨ Sau khi làm xong bước này, tất cả mọi người & mọi thiết bị mở web đều tự động quét thẻ được ngay!
+                </div>
+              </div>
+
+              {/* Option 2: 1-Click Sync URL */}
+              <div className="p-4 rounded-xl bg-slate-950 border border-blue-500/40 space-y-2.5">
+                <div className="flex items-center gap-2 text-blue-400 font-bold text-sm uppercase">
+                  <Smartphone className="w-4 h-4" />
+                  <span>Cách 2: Đồng bộ 1-chạm bằng Link Sang Điện Thoại</span>
+                </div>
+                <p className="text-slate-300 leading-relaxed text-[11px]">
+                  Nếu bạn không muốn chỉnh Vercel, chỉ cần sao chép liên kết kích hoạt này và gửi qua Zalo / Messenger sang điện thoại:
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCopySyncLink}
+                  disabled={!apiKeyInput.trim() && !savedApiKey.trim()}
+                  className="w-full py-2.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span>Đã Sao Chép Link Kích Hoạt!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Sao Chép Link Đồng Bộ Cho Điện Thoại</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
-          </div>
-
-          {/* Test Status feedback */}
-          {testStatus !== 'idle' && (
-            <div 
-              className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
-                testStatus === 'success' 
-                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' 
-                  : testStatus === 'error'
-                  ? 'bg-red-950/40 border-red-500/40 text-red-300'
-                  : 'bg-blue-950/40 border-blue-500/40 text-blue-300'
-              }`}
-            >
-              {testStatus === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              ) : testStatus === 'error' ? (
-                <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
-              ) : (
-                <Sparkles className="w-4 h-4 text-blue-400 animate-spin shrink-0" />
-              )}
-              <span>{testMessage}</span>
-            </div>
           )}
-
-          {/* Helper link */}
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-400">Chưa có API Key?</span>
-            <a
-              href="https://aistudio.google.com/app/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-semibold"
-            >
-              <span>Lấy key miễn phí tại Google AI Studio</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
         </div>
 
         {/* Modal Footer */}
