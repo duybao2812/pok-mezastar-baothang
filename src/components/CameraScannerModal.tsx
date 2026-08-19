@@ -216,40 +216,70 @@ Return ONLY a valid JSON object matching this schema:
   "detected_features": "Black Superstar tag with Kyogre artwork"
 }`;
 
-        const googleRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeKey}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
+        const CANDIDATE_MODELS = [
+          'gemini-3.7-flash',
+          'gemini-flash-latest',
+          'gemini-3.1-flash-lite',
+          'gemini-2.5-flash-preview'
+        ];
+
+        let googleRes: Response | null = null;
+        let lastErrorMsg = '';
+
+        for (const modelName of CANDIDATE_MODELS) {
+          try {
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${activeKey}`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  contents: [
                     {
-                      inline_data: {
-                        mime_type: "image/jpeg",
-                        data: cleanBase64,
-                      },
-                    },
-                    {
-                      text: promptText,
+                      parts: [
+                        {
+                          inline_data: {
+                            mime_type: "image/jpeg",
+                            data: cleanBase64,
+                          },
+                        },
+                        {
+                          text: promptText,
+                        },
+                      ],
                     },
                   ],
-                },
-              ],
-              generationConfig: {
-                response_mime_type: "application/json",
-              },
-            }),
-          }
-        );
+                  generationConfig: {
+                    response_mime_type: "application/json",
+                  },
+                }),
+              }
+            );
 
-        if (!googleRes.ok) {
-          const errBody = await googleRes.json().catch(() => ({}));
-          const msg = errBody.error?.message || `Lỗi từ Google Gemini (${googleRes.status})`;
-          throw new Error(msg);
+            if (res.ok) {
+              googleRes = res;
+              break;
+            } else {
+              const errBody = await res.json().catch(() => ({}));
+              lastErrorMsg = errBody.error?.message || `HTTP ${res.status}`;
+              console.warn(`Model ${modelName} failed:`, lastErrorMsg);
+              // If error is 404 / model not found / deprecated, continue to next model
+              if (res.status === 404 || res.status === 400) {
+                continue;
+              } else {
+                // If it's an API key auth error (e.g. 403 or invalid key), break immediately to show clear message
+                break;
+              }
+            }
+          } catch (fetchErr: any) {
+            lastErrorMsg = fetchErr.message;
+          }
+        }
+
+        if (!googleRes || !googleRes.ok) {
+          throw new Error(lastErrorMsg || "Không thể kết nối đến dịch vụ Google Gemini AI.");
         }
 
         const data = await googleRes.json();
@@ -262,7 +292,7 @@ Return ONLY a valid JSON object matching this schema:
           scanResult = JSON.parse(textContent);
         } catch {
           // If markdown-wrapped json
-          const cleanedJson = textContent.replace(/```json/g, '').replace(/```/g, '').trim();
+          const cleanedJson = textContent.replace(/```json/gi, '').replace(/```/g, '').trim();
           scanResult = JSON.parse(cleanedJson);
         }
       }
