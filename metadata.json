@@ -1,0 +1,6 @@
+{
+  "name": "Pokémon Mezastar VN Tag Collector & Scanner",
+  "description": "Quản lý và quét bộ sưu tập thẻ Pokémon Mezastar (Meza Tag) Việt Nam với trợ lý AI Gemini Scanner, bộ lọc Superstar 6★, thống kê và âm thanh Arcade.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
