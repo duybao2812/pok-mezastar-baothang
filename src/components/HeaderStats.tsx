@@ -11,7 +11,8 @@ import {
   Award,
   Zap,
   Star,
-  Key
+  Key,
+  Swords
 } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 
@@ -25,6 +26,7 @@ interface HeaderStatsProps {
   onOpenBackup: () => void;
   hasApiKey: boolean;
   onOpenApiKeyModal: () => void;
+  onOpenTypeChart: () => void;
 }
 
 export const HeaderStats: React.FC<HeaderStatsProps> = ({
@@ -37,6 +39,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({
   onOpenBackup,
   hasApiKey,
   onOpenApiKeyModal,
+  onOpenTypeChart,
 }) => {
   return (
     <header className="w-full bg-slate-900 border-b border-slate-800 shadow-xl sticky top-0 z-40">
@@ -157,6 +160,20 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({
                   {stats.duplicateCount}
                 </span>
               )}
+            </button>
+
+            {/* Type Matchup Chart (Bảng Tương Khắc Hệ) */}
+            <button
+              id="btn-open-type-chart"
+              onClick={() => {
+                sounds.playClick();
+                onOpenTypeChart();
+              }}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 bg-gradient-to-r from-red-950/80 to-blue-950/80 hover:from-red-900/80 hover:to-blue-900/80 text-amber-300 font-bold text-xs uppercase tracking-wider rounded-lg border border-amber-500/40 transition-all active:scale-95 whitespace-nowrap shadow-sm cursor-pointer"
+              title="Mở Bảng Tương Khắc Hệ (18 hệ Pokémon)"
+            >
+              <Swords className="w-3.5 h-3.5 text-amber-400" />
+              <span>Khắc Hệ</span>
             </button>
 
             {/* API Key Settings Button */}

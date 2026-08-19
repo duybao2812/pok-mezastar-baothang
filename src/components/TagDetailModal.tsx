@@ -14,9 +14,17 @@ import {
   Check, 
   FileText, 
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Flame,
+  AlertTriangle
 } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
+import { 
+  normalizePokemonType, 
+  getAttackingProfile, 
+  getDefendingProfile,
+  PokemonTypeId 
+} from '../utils/typeMatchupData';
 
 interface TagDetailModalProps {
   tag: MezastarTag;
@@ -24,6 +32,7 @@ interface TagDetailModalProps {
   onIncrement: (id: string) => void;
   onDecrement: (id: string) => void;
   onUpdateNotes: (id: string, notes: string) => void;
+  onOpenTypeChart?: (type?: PokemonTypeId) => void;
 }
 
 export const TagDetailModal: React.FC<TagDetailModalProps> = ({
@@ -32,6 +41,7 @@ export const TagDetailModal: React.FC<TagDetailModalProps> = ({
   onIncrement,
   onDecrement,
   onUpdateNotes,
+  onOpenTypeChart,
 }) => {
   const [noteText, setNoteText] = useState(tag.notes || '');
   const [isSavedNote, setIsSavedNote] = useState(false);
@@ -46,6 +56,13 @@ export const TagDetailModal: React.FC<TagDetailModalProps> = ({
     glow: "rgba(148, 163, 184, 0.4)",
     badge: "bg-slate-700/50 text-slate-200 border-slate-600"
   };
+
+  // Compute Type Matchups for this Pokemon
+  const primaryTypeId = normalizePokemonType(tag.type);
+  const moveTypeId = normalizePokemonType(tag.moveType) || primaryTypeId;
+
+  const attackingProfile = moveTypeId ? getAttackingProfile(moveTypeId) : null;
+  const defendingProfile = primaryTypeId ? getDefendingProfile(primaryTypeId) : null;
 
   const handleSaveNote = () => {
     sounds.playClick();
@@ -254,6 +271,98 @@ export const TagDetailModal: React.FC<TagDetailModalProps> = ({
             <div className="p-3.5 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-300 leading-relaxed">
               <span className="font-bold text-slate-200">Giới thiệu Pokémon: </span>
               {tag.description}
+            </div>
+          )}
+
+          {/* Combat Type Matchup Analysis Box (Tương Khắc Thực Chiến) */}
+          {(attackingProfile || defendingProfile) && (
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 shadow-inner">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                <div className="flex items-center gap-2">
+                  <Swords className="w-4 h-4 text-red-400" />
+                  <span className="text-xs font-black uppercase text-white tracking-wide">
+                    Tương Khắc Thực Chiến (Arcade Matchups)
+                  </span>
+                </div>
+                {onOpenTypeChart && (
+                  <button
+                    onClick={() => {
+                      sounds.playClick();
+                      onOpenTypeChart(primaryTypeId || 'Water');
+                    }}
+                    className="text-[11px] font-bold text-blue-400 hover:text-blue-300 uppercase tracking-wider flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    <span>Mở Bảng Khắc Hệ</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {/* Attacking Highlights */}
+                {attackingProfile && (
+                  <div className="p-3 rounded-lg bg-slate-900/90 border border-red-900/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-red-400 uppercase tracking-wider text-[11px] flex items-center gap-1">
+                        <Flame className="w-3.5 h-3.5 text-red-500" />
+                        <span>Đòn {tag.moveName || 'Tấn công'} (Hệ {tag.moveType || tag.type}):</span>
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] text-slate-400">
+                        🔴 <strong className="text-red-300">Siêu hiệu quả (x2) lên:</strong>
+                      </div>
+                      {attackingProfile.supers.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {attackingProfile.supers.map((t) => (
+                            <span
+                              key={t.id}
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.bgColor} text-white shadow-xs`}
+                            >
+                              {t.iconSymbol} {t.nameVi}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-slate-500 italic">Không có hệ nào chịu x2</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Defending Highlights */}
+                {defendingProfile && (
+                  <div className="p-3 rounded-lg bg-slate-900/90 border border-blue-900/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-blue-400 uppercase tracking-wider text-[11px] flex items-center gap-1">
+                        <Shield className="w-3.5 h-3.5 text-blue-500" />
+                        <span>Phòng thủ (Hệ {tag.type}):</span>
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] text-slate-400">
+                        ⚠️ <strong className="text-amber-300">Bị khắc chế bởi (Nhận x2):</strong>
+                      </div>
+                      {defendingProfile.weaknesses.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {defendingProfile.weaknesses.map((t) => (
+                            <span
+                              key={t.id}
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.bgColor} text-white shadow-xs`}
+                            >
+                              {t.iconSymbol} {t.nameVi}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-emerald-400 italic">Không có điểm yếu!</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

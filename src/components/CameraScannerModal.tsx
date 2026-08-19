@@ -160,29 +160,117 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
     try {
       setScanStatusMessage('Google Gemini Vision AI đang nhận diện mã thẻ & Pokémon...');
 
-      const res = await fetch('/api/scan-tag', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageBase64: base64Image,
-          customApiKey: apiKey ? apiKey.trim() : undefined,
-        }),
-      });
+      // 1. First try local backend API (when running in full-stack mode)
+      let scanResult: ScanResult | null = null;
+      let usedServer = false;
 
-      const json = await res.json();
+      try {
+        const res = await fetch('/api/scan-tag', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageBase64: base64Image,
+            customApiKey: apiKey ? apiKey.trim() : undefined,
+          }),
+        });
 
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Không thể nhận diện thẻ Mezastar qua Gemini API.");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            scanResult = json.data;
+            usedServer = true;
+          }
+        }
+      } catch (e) {
+        // Backend not available (e.g. static hosting on Vercel)
+        console.log("Server API not available, falling back to direct client-side Gemini API call:", e);
       }
 
-      const scanResult: ScanResult = json.data;
+      // 2. If server API was not available or 404 (e.g. deployed on Vercel as SPA), call Google Gemini API directly!
+      if (!usedServer || !scanResult) {
+        const activeKey = (apiKey || '').trim();
+        if (!activeKey) {
+          throw new Error("Chưa cài đặt Gemini API Key. Vui lòng bấm vào nút 'API Key' trên góc phải để nhập mã API Key.");
+        }
+
+        const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
+
+        const promptText = `Analyze this image of a physical Pokémon Mezastar Tag (Meza Tag).
+Identify:
+1. Tag ID: e.g. "1-2-001" to "1-2-070", or "R-1-1", "R-1-2", "R-1-3".
+2. Pokémon Name: e.g. Kyogre, Groudon, Koraidon, Miraidon, Pikachu, Lucario, Reshiram, Zekrom, Kyurem, etc.
+3. Grade (2 to 6 stars): 6 (Superstar - black), 5 (Star - red), 4 (blue), 3 (yellow), 2 (green/grey).
+4. Special Mechanic: Dynamax, Mega Evolution, Z-Move, Terastal, Double, Chain, None.
+5. is_valid_tag: boolean true if a Mezastar tag is present.
+
+Return ONLY a valid JSON object matching this schema:
+{
+  "is_valid_tag": true,
+  "tag_id": "1-2-001",
+  "name": "Kyogre",
+  "grade": 6,
+  "special_mechanic": "None",
+  "confidence": 0.95,
+  "detected_features": "Black Superstar tag with Kyogre artwork"
+}`;
+
+        const googleRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      inline_data: {
+                        mime_type: "image/jpeg",
+                        data: cleanBase64,
+                      },
+                    },
+                    {
+                      text: promptText,
+                    },
+                  ],
+                },
+              ],
+              generationConfig: {
+                response_mime_type: "application/json",
+              },
+            }),
+          }
+        );
+
+        if (!googleRes.ok) {
+          const errBody = await googleRes.json().catch(() => ({}));
+          const msg = errBody.error?.message || `Lỗi từ Google Gemini (${googleRes.status})`;
+          throw new Error(msg);
+        }
+
+        const data = await googleRes.json();
+        const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!textContent) {
+          throw new Error("Không nhận được phản hồi phân tích từ Gemini AI.");
+        }
+
+        try {
+          scanResult = JSON.parse(textContent);
+        } catch {
+          // If markdown-wrapped json
+          const cleanedJson = textContent.replace(/```json/g, '').replace(/```/g, '').trim();
+          scanResult = JSON.parse(cleanedJson);
+        }
+      }
 
       setIsScanning(false);
       setScanStatusMessage('');
-      
-      if (scanResult.is_valid_tag && scanResult.tag_id) {
+
+      if (scanResult && scanResult.is_valid_tag && scanResult.tag_id) {
         onScanSuccess(scanResult);
       } else {
         alert("Gemini AI không tìm thấy thẻ Pokémon Mezastar hợp lệ trong ảnh. Vui lòng căn chỉnh lại khung ngắm và thử lại.");

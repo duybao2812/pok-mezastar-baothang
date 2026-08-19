@@ -10,6 +10,8 @@ import { ScanResultModal } from './components/ScanResultModal';
 import { TradeCenterModal } from './components/TradeCenterModal';
 import { BackupModal } from './components/BackupModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
+import { TypeChartModal } from './components/TypeChartModal';
+import { PokemonTypeId } from './utils/typeMatchupData';
 import { sounds } from './utils/soundEffects';
 import { HelpCircle } from 'lucide-react';
 
@@ -64,6 +66,16 @@ export default function App() {
   const [scannedTagResult, setScannedTagResult] = useState<MezastarTag | null>(null);
   const [isTradeCenterOpen, setIsTradeCenterOpen] = useState(false);
   const [isBackupOpen, setIsBackupOpen] = useState(false);
+  const [isTypeChartOpen, setIsTypeChartOpen] = useState(false);
+  const [typeChartInitialType, setTypeChartInitialType] = useState<PokemonTypeId | null>('Water');
+
+  const handleOpenTypeChart = (initialType?: PokemonTypeId) => {
+    sounds.playClick();
+    if (initialType) {
+      setTypeChartInitialType(initialType);
+    }
+    setIsTypeChartOpen(true);
+  };
 
   // Persist collection state on change
   useEffect(() => {
@@ -282,6 +294,7 @@ export default function App() {
         onOpenBackup={() => setIsBackupOpen(true)}
         hasApiKey={!!geminiApiKey}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        onOpenTypeChart={() => handleOpenTypeChart('Water')}
       />
 
       {/* Main Filter Bar */}
@@ -356,8 +369,15 @@ export default function App() {
           onIncrement={handleIncrement}
           onDecrement={handleDecrement}
           onUpdateNotes={handleUpdateNotes}
+          onOpenTypeChart={handleOpenTypeChart}
         />
       )}
+
+      <TypeChartModal
+        isOpen={isTypeChartOpen}
+        onClose={() => setIsTypeChartOpen(false)}
+        initialType={typeChartInitialType}
+      />
 
       <CameraScannerModal
         isOpen={isScannerOpen}

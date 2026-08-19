@@ -71,21 +71,39 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     }
 
     setTestStatus('testing');
-    setTestMessage('Đang kiểm tra kết nối với Gemini AI...');
+    setTestMessage('Đang kiểm tra kết nối trực tiếp với Google Gemini AI...');
 
     try {
-      const response = await fetch('/api/health');
-      if (response.ok) {
+      // Test directly with Google Generative AI REST endpoint
+      const googleRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${keyToTest}`
+      );
+
+      if (googleRes.ok) {
         setTestStatus('success');
-        setTestMessage('Kết nối thành công! Gemini AI đã sẵn sàng quét thẻ.');
+        setTestMessage('✅ API Key hợp lệ và hoạt động hoàn hảo với Google Gemini AI!');
         sounds.playStarChime();
-      } else {
-        setTestStatus('error');
-        setTestMessage('Không thể kết nối máy chủ. Vui lòng thử lại.');
+        return;
       }
-    } catch (err: any) {
+
+      // If Google returned an error (e.g. 400 invalid API key)
+      const errorData = await googleRes.json().catch(() => ({}));
+      const errDetail = errorData.error?.message || 'Mã API Key không hợp lệ.';
       setTestStatus('error');
-      setTestMessage(err.message || 'Lỗi kiểm tra kết nối.');
+      setTestMessage(`❌ Lỗi từ Google: ${errDetail}`);
+    } catch (err: any) {
+      // If network error, try fallback server test
+      try {
+        const localRes = await fetch('/api/health');
+        if (localRes.ok) {
+          setTestStatus('success');
+          setTestMessage('✅ Đã kết nối thành công với máy chủ!');
+          sounds.playStarChime();
+          return;
+        }
+      } catch {}
+      setTestStatus('error');
+      setTestMessage(err.message || 'Không thể kết nối với máy chủ Google AI. Vui lòng kiểm tra mạng.');
     }
   };
 
